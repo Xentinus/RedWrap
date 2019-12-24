@@ -1,5 +1,7 @@
 <br />
-<p align="center"><img src="assets/reddit.svg" width="350px"/></a></p>
+<p align="center">
+  <img src="assets/reddit.svg" width="350px"/>
+</p>
 <br />
 
 <p align="center">
