@@ -1,65 +1,95 @@
-#redwrap
+<br />
+<p align="center"><img src="assets/reddit.svg" width="350px"/></a></p>
+<br />
 
-##Description
+<p align="center">
+  <img src="https://img.shields.io/github/package-json/v/Xentinus/redwrap.svg?style=flat-square"/>
+  <img src="https://img.shields.io/github/repo-size/Xentinus/redwrap.svg?style=flat-square"/>
+  <img src="https://img.shields.io/github/last-commit/Xentinus/redwrap.svg?style=flat-square"/>
+  <img src="https://img.shields.io/github/license/Xentinus/redwrap.svg?style=flat-square"/>
+</p>
+
+# RedWrap
 
 Redwrap is a node.js module that simplifies Reddit API requests through jQuery style chaining methods.  
 
-##How to use
+## How to use
 
 Start by requiring the redwrap module
 
 ```javascript
-reddit = require('redwrap');
+const reddit = require('redwrap');
 ```
 
-This gives us access to 3 types of requests. Each of these request types must be provided with a callback function.  The arguments for the callback function are error, data, and response.
-* error - will return any errors encountered during the request
-* data - returns an object created by parsing the JSON  in the response body
-* response - returns the raw response from Reddit, including the body in JSON form.
+This gives us access to 3 types of requests. Each of these request types must be provided with a callback function.
 
-###1.The basic user request
+The arguments for the callback function are:
 
+* `error` - return any errors encountered during the request
+
+* `data` - returns an object created by parsing the JSON  in the response body
+
+* `response` - returns the raw response from Reddit, including the body in JSON form.
+
+### Options
+
+This is the options object used when initializing requests. Keys are shown below
+
+* `.debug` - Whether or not to log to the console. Defaults to `false`
+* `.userAgent` - The user agent to use in requests. Defaults to `redwrap`
+* `.query` - The query object for the request. Defaults to `{}`
+
+#### Chainable Methods
+
+There are a few chainable methods used to modify the options of requests
+
+* `.setOptions(opts)` - Properties in `opts` override those in `redwrap.options`
+* `.setUserAgent(userAgent)` - Changes the `userAgent` property
+* `.setQuery(query)` - Changed the `query` property
+
+These can also be executed after requests are made
+
+### Basic user request
 
 ```javascript
-reddit.user('username', function(err, data, res){
+reddit.user('username', (err, data, res) => {
   console.log(data); //outputs a parsed javascript object represeting
 });
 ```
 
-###2.The basic subreddit request
-
+### Basic subreddit request
 
 ```javascript
-reddit.r('WTF', function(err, data, res){
+reddit.r('WTF', (err, data, res) => {
   console.log(data); //outputs object representing first page of WTF subreddit
 });
 ```
 
-###3.The basic list request
+### Basic list request
 
 With the list method the first argument is optional, and we will see why in a moment, but let's include one for now.
 
 ```javascript
-reddit.list('hot', function(err, data, res){
-	console.log(data); //object representing the front page of reddit w/ 'hot' filter
+reddit.list('hot', (err, data, res) => {
+  console.log(data); //object representing the front page of reddit w/ 'hot' filter
 });
 ```
 
 That's cool, but we can make it even easier by chaining other methods onto our request.  So let's look at how to format our previous request, using chaining this time.
 
 ```javascript
-reddit.list().hot().exe(function(err, data, res){
-	console.log(data);
+reddit.list().hot().exe((err, data, res) => {
+  console.log(data);
 });
 ```
-Take note of the .exe() method.  This is an optional method that can be placed at the end of our chain which takes a callback as its only argument.  You might use this as a way of breaking up long chains into a more readable structure.  For shorter chains, we can just add our callback to the last method in the chain.
 
-###Filters
+Take note of the .exe() method.  This is an **optional method** that can be placed at the end of our chain which takes a callback as its only argument.  You might use this as a way of breaking up long chains into a more readable structure.  For shorter chains, we can just add our callback to the last method in the chain.
+
+### Filters
 
 Filters in redwrap are methods we can chain to our requests.  These filters correspond exactly with the filters you see on the reddit site. In the last example, we saw our first use of a filter, when we chained .hot() to our request.  Below is a list of possible filters.  You can find
 
-
-User filters
+#### User filters
 
 * overview
 * comments
@@ -70,62 +100,73 @@ User filters
 * saved
 * about
 
-Subreddit filters
+#### Subreddit filters
 
 * hot
 * new
 * controversial
 * top
 
-###Queries
+### Queries
 
 Queries are applied to our request chain in the same way filters are.  They allow us to make a more targeted request from the Reddit API.  The main difference between filters and queries is that queries require an argument when called. In this next example we will be requesting the 'top' '100' comments from this 'year', for the given username.
 
 ```javascript
-reddit.user('username').sort('top').from('year').limit(100, function(err, data, res){
-	console.log(data); //top 100 comments this year for username
+reddit.user('username').sort('top').from('year').limit(100, (err, data, res) => {
+  console.log(data); //top 100 comments this year for username
 });
 ```
+
 Here is a list of the possible queries along with acceptable arguments. You can learn more about the arguments from the Reddit API documentation.
 
-* sort()
-	Possible arguments: 'hot', 'top', 'new', 'controversial'
-* from()
-	Possible arguments: 'all','day','week','month','year'
-* limit()
-	Possible arguments: Any integer from 1 - 100;
-* after()
-	Possible arguments: a post ID
-* before()
-	Possible arguments: a post ID
-* count()
-	Possible arguments: An integer from 1 - 100;
+#### sort()
 
-###Advanced - Making multiple requests with the .all() method.
+Possible arguments: 'hot', 'top', 'new', 'controversial'
 
-**Use this at your own risk**
+#### from()
+
+Possible arguments: 'all','day','week','month','year'
+
+#### limit()
+
+Possible arguments: Any integer from 1 - 100;
+
+#### after()
+
+Possible arguments: a post ID
+
+#### before()
+
+Possible arguments: a post ID
+
+#### count()
+
+Possible arguments: An integer from 1 - 100;
+
+### Advanced - Making multiple requests with the .all() method
+
+> **Use this at your own risk**
 
 Before using this feature it is important that you be aware of the rules found in the Reddit API documentation.  Currently, there is no throttle on the number of requests per min the .all()  method makes.  It will continue to cycle until it collects all of the requested data, or until Reddit cuts you off. Also note that the default limit is set to 100.  You can change this by adding your own limit query to the request chain, but it isn't recommended.  I would like to expand on this feature in the near future, so please, if you have any feature requests let me know.
-
 
 What exactly does the .all() method do? It is basicly a method that allows you to scrape multiple pages of Reddit data. First we create a request chain with our desired filter and queries, just like the previous examples.  Then we add the .all() method to the end of the chain. This gives us access to an event emitter which we can attach listener functions to.  
 
 Here is the basic pattern for making multiple page requests with redwrap using the .all() method.
 
 ```javascript
-reddit.user('username').comments().sort('top').all(function(res) {
-	res.on('data', function(data, res) {
-		console.log(data); //a parsed javascript object of the requested data
-		console.log(res); //the raw response data from Reddit
-	});
+reddit.user('username').comments().sort('top').all((res) => {
+  res.on('data', (data, raw) => {
+    console.log(data); //a parsed javascript object of the requested data
+    console.log(raw); //the raw response data from Reddit
+  });
 
-	res.on('error', function(e) {
-		console.log(e); //outputs any errors
-	});
+  res.on('error', (e) => {
+    console.log(e); //outputs any errors
+  });
 
-	res.on('end', function(){
-		console.log('All Done');
-	});
+  res.on('end', () => {
+    console.log('All Done');
+  });
 });
 ```
 
